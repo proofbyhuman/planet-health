@@ -26,7 +26,7 @@ from __future__ import annotations
 import asyncio
 import math
 
-from ..procedencia import Fuente, Indicador, Modulo, Procedencia, indicador_no_disponible
+from ..models.procedencia import Fuente, Indicador, Modulo, Procedencia, indicador_no_disponible
 from .cliente import ClienteFuentes, Respuesta
 
 URL_OCURRENCIAS = "https://api.gbif.org/v1/occurrence/search"
