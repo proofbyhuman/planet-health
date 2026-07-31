@@ -1,0 +1,20 @@
+# Dependencias para el despliegue. Render instala desde acá.
+#
+# `contrato-informe` no está en PyPI, así que se instala directo desde su
+# repositorio. Es el paquete MIT con el contrato de datos, el motor de firma
+# Ed25519 y la resolución de ubicación. Está aparte por dos razones: para que
+# este proyecto pueda ser software libre sin depender de código propietario, y
+# porque los bytes de `json_canonico()` tienen que ser idénticos en todo lo que
+# firme o verifique estos documentos.
+#
+# Fijado a un commit y no a una rama: si apuntara a `main`, un cambio en ese
+# repositorio entraría en el próximo despliegue sin que nadie lo revisara, y este
+# es el paquete que firma. Para actualizarlo se cambia el hash a mano.
+contrato-informe @ git+https://github.com/USUARIO_GITHUB/contrato-informe@COMMIT_CONTRATO
+
+fastapi>=0.115
+uvicorn[standard]>=0.32
+httpx>=0.28
+pydantic>=2.9
+python-multipart>=0.0.9   # carga de imágenes para la inferencia
+requests>=2.31            # lo usa contrato_informe.ubicacion para consultar al IGN

@@ -1,0 +1,57 @@
+# ---------------------------------------------------------------------------
+# Backend de Planet Health.
+#
+# El contrato de datos, el motor de firma Ed25519 y la resolución de ubicación
+# viven en `contrato-informe`, un paquete aparte con licencia MIT. Se extrajo de
+# `consultora_ambiental` por dos razones: para que este proyecto pueda publicarse
+# como software libre sin depender de código propietario, y porque los bytes que
+# produce `json_canonico()` tienen que ser idénticos en todo lo que firme o
+# verifique estos documentos. Dos copias terminan divergiendo, y el día que
+# divergen las firmas viejas dejan de verificar sin que nada avise.
+#
+# Tampoco figuran deepforest, torch ni pytorch-wildlife, por la misma decisión
+# de diseño que tomó consultora_ambiental: viven en entornos de Python separados
+# y se invocan desde afuera como programas externos. Ver app/rutas/inferencia.py.
+# ---------------------------------------------------------------------------
+
+[project]
+name = "planet-health-backend"
+version = "0.1.0"
+description = "API de evaluación de salud ecológica de una parcela a partir de datos públicos abiertos."
+readme = "../README.md"
+requires-python = ">=3.12"
+license = { text = "AGPL-3.0-or-later" }
+authors = [{ name = "Ramiro Guevara" }]
+
+dependencies = [
+    "contrato-informe>=0.1",  # contrato de datos, firma Ed25519 y ubicación
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "httpx>=0.28",        # cliente HTTP asíncrono para las fuentes externas
+    "pydantic>=2.9",      # validación del contrato de datos
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
