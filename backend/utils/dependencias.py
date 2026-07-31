@@ -15,7 +15,7 @@ from .fuentes.cache import CacheEnDisco
 from .fuentes.cliente import ClienteFuentes
 
 #: Raíz del backend. La caché queda al lado del código y está en el .gitignore.
-RAIZ = Path(__file__).resolve().parent.parent
+RAIZ = Path(__file__).resolve().parent.parent.parent
 
 DIRECTORIO_CACHE = Path(os.environ.get("PLANET_HEALTH_CACHE", RAIZ / "datos_cache"))
 
