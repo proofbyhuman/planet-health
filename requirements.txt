@@ -10,7 +10,7 @@
 # Fijado a un commit y no a una rama: si apuntara a `main`, un cambio en ese
 # repositorio entraría en el próximo despliegue sin que nadie lo revisara, y este
 # es el paquete que firma. Para actualizarlo se cambia el hash a mano.
-contrato-informe @ git+https://github.com/USUARIO_GITHUB/contrato-informe@COMMIT_CONTRATO
+./contrato-informe[ubicacion]
 
 fastapi>=0.115
 uvicorn[standard]>=0.32
