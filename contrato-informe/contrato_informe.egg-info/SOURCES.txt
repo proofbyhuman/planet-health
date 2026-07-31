@@ -1,0 +1,12 @@
+LICENSE
+pyproject.toml
+contrato_informe/__init__.py
+contrato_informe/esquema_informe.py
+contrato_informe/motor_firma.py
+contrato_informe/ubicacion.py
+contrato_informe.egg-info/PKG-INFO
+contrato_informe.egg-info/SOURCES.txt
+contrato_informe.egg-info/dependency_links.txt
+contrato_informe.egg-info/requires.txt
+contrato_informe.egg-info/top_level.txt
+tests/test_nucleo.py

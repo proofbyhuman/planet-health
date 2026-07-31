@@ -1,0 +1,17 @@
+Metadata-Version: 2.4
+Name: contrato-informe
+Version: 0.1.0
+Summary: Contrato de datos, sello Ed25519 y regla de no inventar valores, para informes ambientales descriptivos.
+Author: Ramiro Guevara
+License: MIT
+Keywords: informe ambiental,ed25519,integridad,contrato de datos
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: cryptography>=42
+Provides-Extra: ubicacion
+Requires-Dist: requests>=2.31; extra == "ubicacion"
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
+Requires-Dist: ruff>=0.6; extra == "dev"
+Dynamic: license-file

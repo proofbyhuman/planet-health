@@ -1,0 +1,58 @@
+# ---------------------------------------------------------------------------
+# contrato-informe
+#
+# Extraído de `consultora_ambiental` para que lo pueda usar también Planet
+# Health, que es software libre.
+#
+# La licencia es MIT, permisiva, y eso es deliberado: `consultora_ambiental`
+# sigue siendo propietaria y de uso interno, y Planet Health es AGPL. Una
+# licencia copyleft acá obligaría a la primera a abrirse, o a mantener dos
+# licencias del mismo código. MIT deja que las dos lo usen sin conflicto.
+#
+# Las dependencias son mínimas a propósito. Este paquete es el que firma y
+# verifica: cuanto menos código de terceros toque, menos superficie hay que
+# auditar antes de confiar en una firma.
+# ---------------------------------------------------------------------------
+
+[project]
+name = "contrato-informe"
+version = "0.1.0"
+description = "Contrato de datos, sello Ed25519 y regla de no inventar valores, para informes ambientales descriptivos."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Ramiro Guevara" }]
+keywords = ["informe ambiental", "ed25519", "integridad", "contrato de datos"]
+
+dependencies = [
+    "cryptography>=42",  # Ed25519. Es la única dependencia del núcleo.
+]
+
+[project.optional-dependencies]
+# `resolutor_georef_ar()` consulta el servicio del IGN. Quien solo firme o
+# verifique documentos no necesita salir a la red, así que va aparte.
+ubicacion = ["requests>=2.31"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["contrato_informe*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+# Los tres módulos del núcleo se copiaron byte por byte desde
+# `consultora_ambiental` y se mantienen así hasta que ese proyecto apunte a este
+# paquete. Reformatearlos ahora crearía una diferencia entre las dos copias, que
+# es justo lo que la extracción viene a evitar. Ruff marca algunas cosas ahí
+# —`Callable` desde `typing`, un `noqa` de más— y quedan como están a propósito:
+# se limpian después del cambio, tocando un solo lugar.
+[tool.ruff.lint]
+exclude = ["contrato_informe/esquema_informe.py", "contrato_informe/motor_firma.py", "contrato_informe/ubicacion.py"]

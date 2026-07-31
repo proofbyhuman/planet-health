@@ -1,0 +1,8 @@
+cryptography>=42
+
+[dev]
+pytest>=8.0
+ruff>=0.6
+
+[ubicacion]
+requests>=2.31
