@@ -29,7 +29,7 @@ verosímil. Cerca de la peor forma posible de estar equivocado: consistente.
 
 from __future__ import annotations
 
-from ..procedencia import Fuente, Indicador, Modulo, Procedencia, indicador_no_disponible
+from ..models.procedencia import Fuente, Indicador, Modulo, Procedencia, indicador_no_disponible
 from .cliente import ClienteFuentes, Respuesta
 
 URL = "https://rest.isric.org/soilgrids/v2.0/properties/query"
