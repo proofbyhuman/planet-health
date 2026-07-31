@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planet Health — Condiciones ambientales de cualquier parcela del planeta</title>
+  <meta name="description" content="Herramienta libre y abierta para consultar las condiciones hídricas, de suelo y biodiversidad de cualquier coordenada del planeta, con la procedencia de cada dato a la vista.">
+  <meta name="theme-color" content="#10b981">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!--
+    Este archivo es una cáscara. No contiene ni un solo valor de datos ni un
+    estilo en línea, y es a propósito.
+
+    La versión anterior traía cableados en el marcado el puntaje 82, "Bariloche",
+    "720 mm" y el hash e3b0c44298fc...b855, que es el SHA-256 de la cadena vacía.
+    Se veían mientras cargaba y quedaban pegados en pantalla si el análisis
+    fallaba: alguien con mala conexión veía un informe completo de un lugar donde
+    no estaba, sin ninguna señal de que fuera falso.
+
+    Todo lo que se ve ahora lo dibuja js/vistas/ a partir de lo que responde el
+    backend. Agregar un indicador es un cambio en el backend; acá no se toca nada.
+  -->
+
+  <header class="navbar">
+    <a href="." class="brand">
+      <span class="brand-icon" aria-hidden="true">🌱</span>
+      <span class="brand-name">PLANET <span>HEALTH</span></span>
+    </a>
+    <div class="nav-badges">
+      <p class="badge" id="insignia-conexion" aria-live="polite">
+        <span class="badge-dot"></span> <span data-campo="texto">Comprobando conexión…</span>
+      </p>
+    </div>
+  </header>
+
+  <main class="app-container">
+
+    <aside class="sidebar">
+
+      <section class="glass-card">
+        <h2 class="section-title">📍 Consultar una parcela</h2>
+        <form id="formulario-coordenadas">
+          <div class="input-row">
+            <div class="form-group">
+              <label class="form-label" for="entrada-lat">Latitud (WGS84)</label>
+              <input type="number" step="any" min="-90" max="90" id="entrada-lat"
+                     class="input-field" placeholder="-41.1335" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="entrada-lon">Longitud (WGS84)</label>
+              <input type="number" step="any" min="-180" max="180" id="entrada-lon"
+                     class="input-field" placeholder="-71.3103" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">Analizar parcela</button>
+        </form>
+        <button type="button" class="btn btn-secondary btn-bloque" id="boton-mi-ubicacion">
+          📡 Usar mi ubicación
+        </button>
+      </section>
+
+      <section class="glass-card">
+        <h2 class="section-title">📊 Cobertura de datos</h2>
+        <div id="panel-cobertura" aria-live="polite"></div>
+      </section>
+
+      <section class="glass-card" id="seccion-canopia" hidden>
+        <h2 class="section-title">🌲 Contar copas en una imagen</h2>
+        <p class="texto-ayuda">
+          Subí una foto aérea de la parcela —de dron o vuelo fotogramétrico— y
+          DeepForest cuenta las copas de árboles que ve. Tarda alrededor de medio
+          minuto; la primera vez, más, porque descarga el modelo.
+        </p>
+        <input type="file" id="entrada-imagen" class="input-field"
+               accept="image/jpeg,image/png,image/tiff">
+        <button type="button" class="btn btn-secondary btn-bloque" id="boton-canopia" disabled>
+          Analizar la imagen
+        </button>
+        <p id="aviso-canopia" class="aviso" hidden></p>
+      </section>
+
+      <section class="glass-card">
+        <h2 class="section-title">💾 Datos de campo</h2>
+        <p class="texto-ayuda">
+          Guarda el informe en este dispositivo para consultarlo sin conexión.
+        </p>
+        <button type="button" class="btn btn-secondary btn-bloque" id="boton-guardar" disabled>
+          Guardar en este dispositivo
+        </button>
+        <p id="aviso-guardado" class="aviso" hidden></p>
+
+        <label class="form-label form-label-suelto" for="entrada-observacion">
+          Observación de campo (opcional)
+        </label>
+        <textarea id="entrada-observacion" class="input-field" rows="2" maxlength="2000"
+                  placeholder="Qué viste en el lugar, si estuviste."></textarea>
+        <button type="button" class="btn btn-primary btn-bloque" id="boton-sellar" disabled>
+          🔑 Sellar y registrar con firma
+        </button>
+        <p class="texto-fino">
+          Firma el informe con Ed25519 en el servidor y lo suma a la cola de
+          validación de la comunidad. Queda descargable y verificable por cualquiera.
+        </p>
+        <div id="panel-sello"></div>
+      </section>
+
+    </aside>
+
+    <section class="main-content">
+
+      <div class="map-container">
+        <p class="map-overlay-badge">Hacé clic en cualquier punto del planeta</p>
+        <div id="mapa" role="application" aria-label="Mapa mundial para elegir una coordenada"></div>
+      </div>
+
+      <p id="cargador" class="cargador" hidden>
+        <span class="cargador-giro" aria-hidden="true"></span>
+        <span data-campo="texto">Consultando fuentes…</span>
+      </p>
+
+      <p id="panel-error" class="aviso aviso-error" role="alert" hidden></p>
+
+      <article class="glass-card" id="encabezado-informe" hidden></article>
+
+      <div id="contenedor-modulos" class="modules-grid"></div>
+
+      <article class="glass-card" id="panel-atribuciones" hidden></article>
+
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Planet Health — herramienta libre, abierta y colaborativa.</p>
+    <p class="texto-fino" id="pie-version"></p>
+  </footer>
+
+
+  <!-- ================== PLANTILLAS ==================
+       Cada plantilla es la forma de una pieza de la interfaz. Las vistas las
+       clonan y les llenan los `data-campo`. Cambiar el marcado de una tarjeta se
+       hace acá y en ningún otro lado: no hay HTML dentro del JavaScript.
+  -->
+
+  <template id="plantilla-encabezado">
+    <div class="scorecard-header">
+      <div class="overall-score-box">
+        <div class="cobertura-anillo" data-campo="anillo">
+          <span class="cobertura-valor" data-campo="pct"></span>
+        </div>
+        <div class="score-label-box">
+          <h2 data-campo="lugar"></h2>
+          <p data-campo="coordenadas"></p>
+          <p class="texto-fino" data-campo="fuente-ubicacion"></p>
+        </div>
+      </div>
+      <p class="badge badge-ficticio" data-campo="aviso-ficticio" hidden>
+        ⚠ Este informe contiene datos simulados
+      </p>
+    </div>
+    <p class="aviso aviso-cache" data-campo="aviso-cache" hidden></p>
+    <p class="texto-alcance" data-campo="alcance"></p>
+  </template>
+
+  <template id="plantilla-modulo">
+    <article class="glass-card module-card">
+      <header class="module-header">
+        <span class="module-icon" data-campo="icono" aria-hidden="true"></span>
+        <h3 class="module-title" data-campo="titulo"></h3>
+        <span class="modulo-resumen" data-campo="resumen"></span>
+      </header>
+      <ul class="lista-indicadores" data-campo="indicadores"></ul>
+      <p class="modulo-limitaciones" data-campo="limitaciones"></p>
+    </article>
+  </template>
+
+  <template id="plantilla-indicador">
+    <li class="indicador">
+      <div class="indicador-fila">
+        <span class="indicador-etiqueta" data-campo="etiqueta"></span>
+        <span class="indicador-valor" data-campo="valor"></span>
+      </div>
+      <div class="indicador-pie">
+        <span class="insignia-procedencia" data-campo="procedencia"></span>
+        <span class="indicador-fuente" data-campo="fuente"></span>
+      </div>
+      <p class="indicador-motivo" data-campo="motivo" hidden></p>
+      <details class="indicador-detalle" data-campo="detalle" hidden>
+        <summary>Cómo se obtuvo y qué no dice</summary>
+        <dl>
+          <div data-campo="bloque-metodo" hidden>
+            <dt>Método</dt><dd data-campo="metodo"></dd>
+          </div>
+          <div data-campo="bloque-periodo" hidden>
+            <dt>Período o alcance</dt><dd data-campo="periodo"></dd>
+          </div>
+          <div data-campo="bloque-limitaciones" hidden>
+            <dt>Limitaciones</dt><dd data-campo="limitaciones"></dd>
+          </div>
+          <div data-campo="bloque-licencia" hidden>
+            <dt>Licencia de la fuente</dt><dd data-campo="licencia"></dd>
+          </div>
+        </dl>
+      </details>
+    </li>
+  </template>
+
+  <template id="plantilla-cobertura">
+    <p class="cobertura-titular"><strong data-campo="pct"></strong> de los indicadores tiene dato</p>
+    <ul class="cobertura-desglose">
+      <li>
+        <span class="insignia-procedencia procedencia-medido">medido</span>
+        <span data-campo="medidos"></span>
+      </li>
+      <li>
+        <span class="insignia-procedencia procedencia-estimado">estimado</span>
+        <span data-campo="estimados"></span>
+      </li>
+      <li>
+        <span class="insignia-procedencia procedencia-no_disponible">sin fuente</span>
+        <span data-campo="no-disponibles"></span>
+      </li>
+      <li data-campo="fila-simulados" hidden>
+        <span class="insignia-procedencia procedencia-simulado">simulado</span>
+        <span data-campo="simulados"></span>
+      </li>
+    </ul>
+    <p class="texto-fino">
+      Cuenta cuántos de los indicadores que el sistema sabe pedir consiguió para esta
+      coordenada. No es una calificación del lugar.
+    </p>
+  </template>
+
+  <template id="plantilla-sello">
+    <div class="sello-panel">
+      <p class="sello-id">Registro <code data-campo="id"></code></p>
+      <ul class="sello-niveles" data-campo="niveles"></ul>
+      <a class="btn btn-secondary btn-bloque" data-campo="descarga" download>
+        ⬇ Descargar el registro firmado (.json)
+      </a>
+      <p class="texto-fino" data-campo="advertencia"></p>
+    </div>
+  </template>
+
+  <!--
+    Un nivel de verificación. Son tres y hay que mostrarlos por separado, no
+    resumidos en un cartel de "verificado".
+
+    La versión anterior tenía una insignia fija que decía «Sello Criptográfico
+    Activo», encendida siempre, sobre un hash que ni siquiera cubría los datos.
+    `ResultadoVerificacion` en motor_firma.py ya separa las tres cosas que ese
+    cartel mezclaba, y con razón: integridad y firma se comprueban contra datos
+    que vienen DENTRO del archivo, así que por sí solas no dicen quién lo emitió.
+    Solo el ancla dice algo del emisor, y necesita una huella traída de afuera.
+  -->
+  <template id="plantilla-nivel-sello">
+    <li class="sello-nivel">
+      <span class="sello-marca" data-campo="marca" aria-hidden="true"></span>
+      <div>
+        <p class="sello-nivel-titulo" data-campo="titulo"></p>
+        <p class="sello-nivel-detalle" data-campo="detalle"></p>
+      </div>
+    </li>
+  </template>
+
+  <template id="plantilla-atribuciones">
+    <h2 class="section-title">📚 Fuentes consultadas</h2>
+    <ul class="lista-atribuciones" data-campo="lista"></ul>
+    <p class="texto-fino" data-campo="limitaciones"></p>
+  </template>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

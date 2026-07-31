@@ -1,0 +1,15 @@
+# Normalizacion de finales de linea.
+#
+# El repositorio guarda todo con LF. Cada quien lo ve en su sistema como
+# corresponda. Sin esto, un colaborador en Windows y otro en Linux se pisan
+# el archivo entero en cada commit y los diffs quedan ilegibles.
+* text=auto eol=lf
+
+# Binarios: que git no los toque.
+*.png binary
+*.jpg binary
+*.gif binary
+*.webp binary
+*.pdf binary
+*.tif binary
+*.wav binary

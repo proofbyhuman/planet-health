@@ -1,0 +1,57 @@
+# Despliegue en Render.
+#
+# Un solo servicio: el backend de FastAPI sirve también los archivos del
+# frontend, así que no hace falta un servicio estático aparte ni configurar CORS
+# entre dos dominios distintos.
+#
+# ---------------------------------------------------------------------------
+# Lo que NO va a funcionar en el plan gratuito, dicho de antemano
+# ---------------------------------------------------------------------------
+#
+# 1. La inferencia de DeepForest. Necesita torch, que son unos 2 GB, y un
+#    intérprete de Python aparte. No entra en 512 MB de RAM. El backend lo
+#    detecta solo: `GET /api/v1/inferencia` responde que no está disponible, el
+#    frontend esconde el panel de carga de imágenes, y los indicadores de
+#    canopia salen `no_disponible` con el motivo escrito. No se rompe nada.
+#
+# 2. La persistencia. El disco es efímero: en cada despliegue se pierden la
+#    caché de datos y la base de registros firmados. La caché se vuelve a llenar
+#    sola; los registros no. Cuando el proyecto tenga registros de campo de
+#    verdad, hay que pasar a un plan con disco o a otro servicio.
+#
+# 3. El servicio se duerme a los 15 minutos sin visitas. La primera consulta
+#    después tarda cerca de un minuto en responder mientras arranca.
+#
+# ---------------------------------------------------------------------------
+# Lo que sí hay que configurar a mano en el panel de Render
+# ---------------------------------------------------------------------------
+#
+# PLANET_HEALTH_CLAVE_PRIVADA_PEM — la clave privada Ed25519 en formato PEM.
+#   Sin esto, el servidor genera una clave nueva en cada despliegue y todos los
+#   registros firmados antes dejan de anclar. Va como secreto, nunca acá.
+#
+# PLANET_HEALTH_PASSPHRASE — la contraseña de esa clave, si está cifrada.
+#
+# Ver backend/CLAVES.md para cómo generar el par.
+
+services:
+  - type: web
+    name: planet-health
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/salud
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.9"
+      # Origen público del servicio. Lo usa el CORS del backend.
+      - key: PLANET_HEALTH_ORIGENES
+        sync: false
+      # Secretos: se cargan a mano en el panel, no viajan en el repositorio.
+      - key: PLANET_HEALTH_CLAVE_PRIVADA_PEM
+        sync: false
+      - key: PLANET_HEALTH_PASSPHRASE
+        sync: false

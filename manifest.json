@@ -1,0 +1,16 @@
+{
+  "name": "Planet Health",
+  "short_name": "PlanetHealth",
+  "description": "Evaluación gratuita de salud hídrica, suelo y biodiversidad planetaria.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

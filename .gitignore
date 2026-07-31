@@ -1,0 +1,39 @@
+# Entornos de Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Base de datos de registros sellados
+*.db
+*.sqlite
+*.sqlite3
+
+# Claves privadas. Nunca, bajo ningún concepto, en el repositorio.
+# Misma regla que el .gitignore de consultora_ambiental.
+*.pem
+*.key
+claves/
+
+# Configuración local
+.env
+.env.*
+!.env.example
+
+# Caché en disco de las fuentes de datos externas
+datos_cache/
+
+# Sistema operativo y editores
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# PyTorch Lightning crea esto apenas instancia un Trainer. La inferencia ya
+# corre con el directorio de trabajo en el temporal del sistema para que no
+# aparezca acá, pero si alguien corre el script a mano desde el repositorio, sí.
+lightning_logs/
