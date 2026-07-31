@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Planet Health — Condiciones ambientales de cualquier parcela del planeta</title>
-  <meta name="description" content="Herramienta libre y abierta para consultar las condiciones hídricas, de suelo y biodiversidad de cualquier coordenada del planeta, con la procedencia de cada dato.">
+  <meta name="description" content="Herramienta libre y abierta para consultar las condiciones hídricas, de suelo y biodiversidad de cualquier coordenada del planeta, con la procedencia de cada dato a la vista.">
   <meta name="theme-color" content="#10b981">
 
   <link rel="manifest" href="manifest.json">
@@ -246,6 +246,27 @@
       </a>
       <p class="texto-fino" data-campo="advertencia"></p>
     </div>
+  </template>
+
+  <!--
+    Un nivel de verificación. Son tres y hay que mostrarlos por separado, no
+    resumidos en un cartel de "verificado".
+
+    La versión anterior tenía una insignia fija que decía «Sello Criptográfico
+    Activo», encendida siempre, sobre un hash que ni siquiera cubría los datos.
+    `ResultadoVerificacion` en motor_firma.py ya separa las tres cosas que ese
+    cartel mezclaba, y con razón: integridad y firma se comprueban contra datos
+    que vienen DENTRO del archivo, así que por sí solas no dicen quién lo emitió.
+    Solo el ancla dice algo del emisor, y necesita una huella traída de afuera.
+  -->
+  <template id="plantilla-nivel-sello">
+    <li class="sello-nivel">
+      <span class="sello-marca" data-campo="marca" aria-hidden="true"></span>
+      <div>
+        <p class="sello-nivel-titulo" data-campo="titulo"></p>
+        <p class="sello-nivel-detalle" data-campo="detalle"></p>
+      </div>
+    </li>
   </template>
 
   <template id="plantilla-atribuciones">
