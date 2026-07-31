@@ -10,9 +10,9 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from .almacen import AlmacenRegistros
-from .fuentes.cache import CacheEnDisco
-from .fuentes.cliente import ClienteFuentes
+from ..models.almacen import AlmacenRegistros
+from ..services.cache import CacheEnDisco
+from ..services.cliente import ClienteFuentes
 
 #: Raíz del backend. La caché queda al lado del código y está en el .gitignore.
 RAIZ = Path(__file__).resolve().parent.parent.parent
