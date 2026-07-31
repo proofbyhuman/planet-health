@@ -33,10 +33,10 @@ from typing import Any
 from contrato_informe.esquema_informe import NO_DETERMINADO, Ubicacion
 from contrato_informe.ubicacion import resolutor_georef_ar, resolver_ubicacion
 
-from .fuentes.cliente import ClienteFuentes
-from .fuentes.gbif import obtener_modulo_biodiversidad
-from .fuentes.open_meteo import obtener_modulo_hidrologia
-from .fuentes.soilgrids import obtener_modulo_suelo
+from ..services.cliente import ClienteFuentes
+from ..services.gbif import obtener_modulo_biodiversidad
+from ..services.open_meteo import obtener_modulo_hidrologia
+from ..services.soilgrids import obtener_modulo_suelo
 from .procedencia import CoberturaDatos, Modulo, Procedencia, indicador_no_disponible
 
 _log = logging.getLogger(__name__)
