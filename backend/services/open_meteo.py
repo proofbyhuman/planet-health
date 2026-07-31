@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import datetime as dt
 
-from ..procedencia import Fuente, Indicador, Modulo, Procedencia, indicador_no_disponible
+from ..models.procedencia import Fuente, Indicador, Modulo, Procedencia, indicador_no_disponible
 from .cliente import ClienteFuentes, Respuesta
 
 URL_ARCHIVO = "https://archive-api.open-meteo.com/v1/archive"
