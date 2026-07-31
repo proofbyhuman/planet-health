@@ -24,7 +24,7 @@ DIRECTORIO_CACHE = Path(os.environ.get("PLANET_HEALTH_CACHE", RAIZ / "datos_cach
 RUTA_BD = Path(os.environ.get("PLANET_HEALTH_BD", RAIZ / "registros.db"))
 
 #: Carpeta del frontend que sirve el backend en desarrollo.
-DIRECTORIO_FRONTEND = RAIZ.parent / "frontend"
+DIRECTORIO_FRONTEND = RAIZ / "frontend"
 
 _cliente_singleton: ClienteFuentes | None = None
 _almacen_singleton: AlmacenRegistros | None = None
